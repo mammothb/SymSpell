@@ -65,7 +65,7 @@ public class SymSpell
     // of the original words and the deletes derived from them. Collisions of hashCodes is tolerated,
     // because suggestions are ultimately verified via an edit distance function.
     // A list of suggestions might have a single suggestion, or multiple suggestions. 
-    private Dictionary<int, string[]> deletes;
+    private Dictionary<string, string[]> deletes;
     // Dictionary of unique correct spelling words, and the frequency count for each word.
     private readonly Dictionary<string, Int64> words;
     // Dictionary of unique words that are below the count threshold for being considered correct spellings.
@@ -229,24 +229,23 @@ public class SymSpell
         // if not staging suggestions, put directly into main data structure
         if (staging != null)
         {
-            foreach (string delete in edits) staging.Add(GetStringHash(delete), key);
+            foreach (string delete in edits) staging.Add(delete, key);
         }
         else
         {
-            if (deletes == null) this.deletes = new Dictionary<int, string[]>(initialCapacity); //initialisierung
+            if (deletes == null) this.deletes = new Dictionary<string, string[]>(initialCapacity); //initialisierung
             foreach (string delete in edits)
             {
-                int deleteHash = GetStringHash(delete);
-                if (deletes.TryGetValue(deleteHash, out string[] suggestions))
+                if (deletes.TryGetValue(delete, out string[] suggestions))
                 {
                     var newSuggestions = new string[suggestions.Length + 1];
                     Array.Copy(suggestions, newSuggestions, suggestions.Length);
-                    deletes[deleteHash] = suggestions = newSuggestions;
+                    deletes[delete] = suggestions = newSuggestions;
                 }
                 else
                 {
                     suggestions = new string[1];
-                    deletes.Add(deleteHash, suggestions);
+                    deletes.Add(delete, suggestions);
                 }
                 suggestions[suggestions.Length - 1] = key;
             }
@@ -352,7 +351,7 @@ public class SymSpell
                 }
             }
         }
-        if (this.deletes == null) this.deletes = new Dictionary<int, string[]>(staging.DeleteCount);
+        if (this.deletes == null) this.deletes = new Dictionary<string, string[]>(staging.DeleteCount);
         CommitStaged(staging);
         return true;
     }
@@ -389,7 +388,7 @@ public class SymSpell
                 }
             }
         }
-        if (this.deletes == null) this.deletes = new Dictionary<int, string[]>(staging.DeleteCount);
+        if (this.deletes == null) this.deletes = new Dictionary<string, string[]>(staging.DeleteCount);
         CommitStaged(staging);
         return true;
     }
@@ -510,7 +509,7 @@ public class SymSpell
             }
 
             //read candidate entry from dictionary
-            if (deletes.TryGetValue(GetStringHash(candidate), out string[] dictSuggestions))
+            if (deletes.TryGetValue(candidate, out string[] dictSuggestions))
             {
                 //iterate through suggestions (to other correct dictionary items) of delete item and add them to suggestion list
                 for (int i = 0; i < dictSuggestions.Length; i++)
@@ -641,7 +640,7 @@ public class SymSpell
             public int count;
             public int first;
         }
-        private Dictionary<int, Entry> Deletes { get; set; }
+        private Dictionary<string, Entry> Deletes { get; set; }
         private ChunkArray<Node> Nodes { get; set; }
         /// <summary>Create a new instance of SuggestionStage.</summary>
         /// <remarks>Specifying ann accurate initialCapacity is not essential, 
@@ -650,7 +649,7 @@ public class SymSpell
         /// <param name="initialCapacity">The expected number of words that will be added.</param>
         public SuggestionStage(int initialCapacity)
         {
-            Deletes = new Dictionary<int, Entry>(initialCapacity);
+            Deletes = new Dictionary<string, Entry>(initialCapacity);
             Nodes = new ChunkArray<Node>(initialCapacity * 2);
         }
         /// <summary>Gets the count of unique delete words.</summary>
@@ -663,16 +662,16 @@ public class SymSpell
             Deletes.Clear();
             Nodes.Clear();
         }
-        internal void Add(int deleteHash, string suggestion)
+        internal void Add(string delete, string suggestion)
         {
-            if (!Deletes.TryGetValue(deleteHash, out Entry entry)) entry = new Entry { count = 0, first = -1 };
+            if (!Deletes.TryGetValue(delete, out Entry entry)) entry = new Entry { count = 0, first = -1 };
             int next = entry.first;
             entry.count++;
             entry.first = Nodes.Count;
-            Deletes[deleteHash] = entry;
+            Deletes[delete] = entry;
             Nodes.Add(new Node { suggestion = suggestion, next = next });
         }
-        internal void CommitTo(Dictionary<int, string[]> permanentDeletes)
+        internal void CommitTo(Dictionary<string, string[]> permanentDeletes)
         {
             foreach (var keyPair in Deletes)
             {
