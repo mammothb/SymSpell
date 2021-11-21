@@ -22,7 +22,7 @@ namespace symspell.Demo
             stopWatch.Start();
 
             //set parameters
-            const int initialCapacity = 82765;
+            const int initialCapacity = 82834;
             const int maxEditDistance = 2;
             const int prefixLength = 7;
             var symSpell = new SymSpell(initialCapacity, maxEditDistance, prefixLength);
@@ -31,10 +31,23 @@ namespace symspell.Demo
             //wordfrequency_en.txt  ensures high correction quality by combining two data sources: 
             //Google Books Ngram data  provides representative word frequencies (but contains many entries with spelling errors)  
             //SCOWL — Spell Checker Oriented Word Lists which ensures genuine English vocabulary (but contained no word frequencies)   
-            //string path = AppDomain.CurrentDomain.BaseDirectory + "frequency_dictionary_en_82_765.txt"; //path referencing the SymSpell core project
-            string path = AppDomain.CurrentDomain.BaseDirectory + "frequency_dictionary_en_82_765_old.txt"; //path referencing the SymSpell core project
+            string path = AppDomain.CurrentDomain.BaseDirectory + "frequency_dictionary_en_82_765.txt"; //path referencing the SymSpell core project
+            //string path = AppDomain.CurrentDomain.BaseDirectory + "frequency_dictionary_en_82_765_old.txt"; //path referencing the SymSpell core project
             //string path = "../../frequency_dictionary_en_82_765.txt";  //path when using symspell nuget package (frequency_dictionary_en_82_765.txt is included in nuget package)
             if (!symSpell.LoadDictionary(path, 0, 1)) { Console.Error.WriteLine("\rFile not found: " + Path.GetFullPath(path)); Console.ReadKey(); return; }
+            using (StreamWriter w = File.AppendText("SymSpellDeletes.txt"))
+            {
+                foreach (KeyValuePair<string, string[]> entry in symSpell.deletes)
+                {
+                    string output = entry.Key + " [";
+                    foreach (string val in entry.Value)
+                    {
+                        output += "\"" + val + "\", ";
+                    }
+                    output += "]";
+                    w.WriteLine(output);
+                }
+            }
 
             //Alternatively Create the dictionary from a text corpus (e.g. http://norvig.com/big.txt ) 
             //Make sure the corpus does not contain spelling errors, invalid terms and the word frequency is representative to increase the precision of the spelling correction.

@@ -65,7 +65,7 @@ public class SymSpell
     // of the original words and the deletes derived from them. Collisions of hashCodes is tolerated,
     // because suggestions are ultimately verified via an edit distance function.
     // A list of suggestions might have a single suggestion, or multiple suggestions. 
-    private Dictionary<string, string[]> deletes;
+    public Dictionary<string, string[]> deletes;
     // Dictionary of unique correct spelling words, and the frequency count for each word.
     private readonly Dictionary<string, Int64> words;
     // Dictionary of unique words that are below the count threshold for being considered correct spellings.
