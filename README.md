@@ -3,6 +3,8 @@ SymSpell<br>
 [![MIT License](https://img.shields.io/github/license/wolfgarbe/symspell.svg)](https://github.com/wolfgarbe/SymSpell/blob/master/LICENSE)
 ========
 
+**NOTE: In this branch, `deletes` is implemented as `Dictionary<string, string[]>` to match the Python port behavior. `Dict[str, List[str]]` was used in the Python port due to performance improvement over using a string hash.**
+
 Spelling correction & Fuzzy search: **1 million times faster** through Symmetric Delete spelling correction algorithm
  
 The Symmetric Delete spelling correction algorithm reduces the complexity of edit candidate generation and dictionary lookup for a given Damerau-Levenshtein distance. It is six orders of magnitude faster ([than the standard approach with deletes + transposes + replaces + inserts](http://norvig.com/spell-correct.html)) and language independent.
