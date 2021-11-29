@@ -23,7 +23,7 @@ namespace symspell.Demo
 
             //set parameters
             const int initialCapacity = 82834;
-            const int maxEditDistance = 2;
+            const int maxEditDistance = 5;
             const int prefixLength = 7;
             var symSpell = new SymSpell(initialCapacity, maxEditDistance, prefixLength);
 
@@ -34,19 +34,34 @@ namespace symspell.Demo
             string path = AppDomain.CurrentDomain.BaseDirectory + "frequency_dictionary_en_82_765.txt"; //path referencing the SymSpell core project
             //string path = AppDomain.CurrentDomain.BaseDirectory + "frequency_dictionary_en_82_765_old.txt"; //path referencing the SymSpell core project
             //string path = "../../frequency_dictionary_en_82_765.txt";  //path when using symspell nuget package (frequency_dictionary_en_82_765.txt is included in nuget package)
-            if (!symSpell.LoadDictionary(path, 0, 1)) { Console.Error.WriteLine("\rFile not found: " + Path.GetFullPath(path)); Console.ReadKey(); return; }
-            using (StreamWriter w = File.AppendText("SymSpellDeletes.txt"))
+            //if (!symSpell.LoadDictionary(path, 0, 1)) { Console.Error.WriteLine("\rFile not found: " + Path.GetFullPath(path)); Console.ReadKey(); return; }
+            //using (StreamWriter w = File.AppendText("SymSpellDeletes.txt"))
+            //{
+            //    foreach (KeyValuePair<string, string[]> entry in symSpell.deletes)
+            //    {
+            //        string output = entry.Key + " [";
+            //        foreach (string val in entry.Value)
+            //        {
+            //            output += "\"" + val + "\", ";
+            //        }
+            //        output += "]";
+            //        w.WriteLine(output);
+            //    }
+            //}
+            symSpell.CreateDictionaryEntry("asdf", 2);
+            symSpell.CreateDictionaryEntry("qwer", 2);
+            symSpell.CreateDictionaryEntry("zxcv", 2);
+            symSpell.CreateDictionaryEntry("", 2);
+
+            foreach (KeyValuePair<string, string[]> entry in symSpell.deletes)
             {
-                foreach (KeyValuePair<string, string[]> entry in symSpell.deletes)
+                string output = " (" + entry.Key + ") [";
+                foreach (string val in entry.Value)
                 {
-                    string output = entry.Key + " [";
-                    foreach (string val in entry.Value)
-                    {
-                        output += "\"" + val + "\", ";
-                    }
-                    output += "]";
-                    w.WriteLine(output);
+                    output += "\"" + val + "\", ";
                 }
+                output += "]";
+                Console.WriteLine(output);
             }
 
             //Alternatively Create the dictionary from a text corpus (e.g. http://norvig.com/big.txt ) 
